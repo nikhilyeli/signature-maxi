@@ -1,0 +1,147 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Global Styles — Dark / Light Mode + Signature App Theme
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Primary Light Theme ──────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --sig-bg:           #f4f5f8;
+  --sig-surface:      #ffffff;
+  --sig-surface-2:    #f9f9fb;
+  --sig-surface-3:    #eef0f5;
+  --sig-border:       rgba(69, 140, 215, 0.15);
+  --sig-border-solid: #d0d4e8;
+
+  --sig-yellow:       #d79f28;
+  --sig-yellow-dim:   rgba(215, 159, 40, 0.15);
+  --sig-yellow-dark:  #614914;
+  --sig-blue:         #458cd7;
+  --sig-green:        #4caf50;
+  --sig-red:          #f44336;
+
+  --sig-text:         #1a1a2e;
+  --sig-text-muted:   #6b7080;
+  --sig-text-faint:   #b0b4c0;
+
+  --sig-canvas-bg:    #ffffff;
+  --sig-radius:       8px;
+
+  /* Material overrides for light */
+  --mdc-outlined-text-field-outline-color:       #c8ccda;
+  --mdc-outlined-text-field-focus-outline-color: #d79f28;
+  --mdc-outlined-text-field-label-text-color:    #6b7080;
+  --mdc-outlined-text-field-focus-label-text-color: #d79f28;
+  --mdc-outlined-text-field-input-text-color:    #1a1a2e;
+  --mdc-outlined-text-field-caret-color:         #d79f28;
+
+  --mat-select-trigger-text-color:         #1a1a2e;
+  --mat-option-selected-state-label-text-color: #d79f28;
+  --mat-form-field-hint-text-color:        #b0b4c0;
+}
+
+/* ── Base reset ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--sig-bg);
+  color: var(--sig-text);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--sig-surface); }
+::-webkit-scrollbar-thumb { background: var(--sig-border-solid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sig-yellow); }
+
+/* ══ Material Dialog overrides ═══════════════════════════════════════════ */
+.signature-dialog-backdrop { background: rgba(0,0,0,0.72); }
+
+.signature-dialog-panel .mat-mdc-dialog-surface,
+.signature-viewer-panel  .mat-mdc-dialog-surface {
+  background: var(--sig-surface-2) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+/* ══ Signer list options (global) ═════════════════════════════════════════ */
+.signer-option {
+  --mdc-list-list-item-label-text-color:          var(--sig-text);
+  --mdc-list-list-item-supporting-text-color:     var(--sig-text-muted);
+  --mdc-list-list-item-two-line-container-height: 56px;
+  --mdc-list-list-item-container-shape:           4px;
+}
+
+.mat-mdc-list-base .mdc-list-item--selected .mdc-list-item__primary-text,
+.mat-mdc-list-base .mdc-list-item--activated .mdc-list-item__primary-text {
+  color: var(--sig-text) !important;
+}
+
+.mdc-list-item.mdc-list-item--selected {
+  background-color: var(--sig-yellow-dim) !important;
+}
+
+/* ══ Slide toggle accent ══════════════════════════════════════════════════ */
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color:        #d79f28 !important;
+  --mdc-switch-selected-handle-color:       #fff    !important;
+  --mdc-switch-selected-hover-track-color:  #a07010 !important;
+  --mdc-switch-selected-focus-track-color:  #a07010 !important;
+  --mat-slide-toggle-label-text-color:      var(--sig-text);
+}
+
+/* ══ Tooltip overrides ════════════════════════════════════════════════════ */
+.mdc-tooltip__surface {
+  background-color: var(--sig-surface) !important;
+  color: var(--sig-text) !important;
+  border: 1px solid var(--sig-border-solid) !important;
+  border-radius: 4px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* ══ SnackBar in Dialogs Fix ═════════════════════════════════════════════ */
+.cdk-global-overlay-wrapper {
+  z-index: 100000 !important;
+}
+
+/* ── Dark Theme ──────────────────────────────────────────────────────────── */
+.dark-theme {
+  color-scheme: dark;
+
+  --sig-bg:           #121212;
+  --sig-surface:      #1e1e1e;
+  --sig-surface-2:    #2c2c2c;
+  --sig-surface-3:    #3a3a3a;
+  --sig-border:       rgba(215, 159, 40, 0.15);
+  --sig-border-solid: #444444;
+
+  --sig-yellow:       #f9c23c;
+  --sig-yellow-dim:   rgba(249, 194, 60, 0.15);
+  --sig-yellow-dark:  #d79f28;
+
+  --sig-text:         #e0e0e0;
+  --sig-text-muted:   #9e9e9e;
+  --sig-text-faint:   #616161;
+
+  --sig-canvas-bg:    #1e1e1e;
+
+  /* Material overrides for dark */
+  --mdc-outlined-text-field-outline-color:       #616161;
+  --mdc-outlined-text-field-focus-outline-color: #f9c23c;
+  --mdc-outlined-text-field-label-text-color:    #9e9e9e;
+  --mdc-outlined-text-field-focus-label-text-color: #f9c23c;
+  --mdc-outlined-text-field-input-text-color:    #e0e0e0;
+  --mdc-outlined-text-field-caret-color:         #f9c23c;
+
+  --mat-select-trigger-text-color:         #e0e0e0;
+  --mat-option-selected-state-label-text-color: #f9c23c;
+  --mat-form-field-hint-text-color:        #616161;
+}

@@ -1,0 +1,48 @@
+<div class="signer-card" [class.card-signed]="signer.signed" [class.card-mandatory]="signer.mandatory">
+  <!-- Top row -->
+  <div class="card-top">
+    <div class="avatar" [class.avatar-signed]="signer.signed">
+      <mat-icon *ngIf="signer.signed">check</mat-icon>
+      <span *ngIf="!signer.signed">{{ signer.name | slice: 0 : 1 }}</span>
+    </div>
+    <div class="card-meta">
+      <span class="card-name">{{ signer.name }}</span>
+      <span class="card-role">{{ signer.role }}</span>
+    </div>
+    <span class="badge" [class.badge-mand]="signer.mandatory" [class.badge-opt]="!signer.mandatory">
+      {{ signer.mandatory ? 'Mandatory' : 'Optional' }}
+    </span>
+  </div>
+
+  <!-- Signature preview -->
+  <div class="sig-preview" [class.clickable]="signer.signed" (click)="signer.signed && view.emit(signer)">
+    <mat-icon *ngIf="signer.signed" class="center-tick-bg">check_circle</mat-icon>
+    <img *ngIf="signer.signed && signatureImageSrc" [src]="signatureImageSrc" [alt]="'Signature of ' + signer.name" class="sig-img" />
+    <div *ngIf="!signer.signed" class="sig-placeholder">
+      <mat-icon svgIcon="stylus_note"></mat-icon>
+      <span>Not signed yet</span>
+    </div>
+    <div class="preview-overlay" *ngIf="signer.signed">
+      <mat-icon>zoom_in</mat-icon>
+    </div>
+  </div>
+
+  <!-- Timestamp -->
+  <div class="signed-at" *ngIf="signer.signedAt">
+    <mat-icon>schedule</mat-icon> {{ signer.signedAt }}
+  </div>
+
+  <!-- Actions -->
+  <div class="card-actions">
+    <button mat-icon-button [matTooltip]="signer.signed ? 'Edit signature' : 'Add signature'" [disabled]="signer.signed && signer.canEdit === false" (click)="sign.emit(signer)" class="btn-sign">
+      <mat-icon *ngIf="!signer.signed" svgIcon="stylus_note"></mat-icon>
+      <mat-icon *ngIf="signer.signed">edit_note</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="View full-size" [disabled]="!signer.signed" (click)="view.emit(signer)">
+      <mat-icon>visibility</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="Clear signature" [disabled]="!signer.signed || signer.canDelete === false" (click)="delete.emit(signer)">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+  </div>
+</div>

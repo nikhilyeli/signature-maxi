@@ -1,0 +1,272 @@
+<div class="signed-preview-container" *ngIf="signer?.signed">
+  <div class="status-banner status-success" style="margin-bottom: 12px">
+    <mat-icon>task_alt</mat-icon> Signature confirmed for <strong>{{ signer?.name }}</strong
+    >.
+  </div>
+
+  <div class="sig-preview-box">
+    <img
+      [src]="signer?.signatureDataUrl || signer?.signature"
+      alt="Signature preview"
+      *ngIf="signer?.signatureDataUrl || signer?.signature"
+    />
+  </div>
+
+  <div class="action-row" style="margin-top: 16px; justify-content: center">
+    <button mat-stroked-button (click)="clearSignature()" *ngIf="signer?.canEdit !== false && signer?.canDelete !== false">
+      <mat-icon>delete</mat-icon> Clear & Redo Signature
+    </button>
+  </div>
+</div>
+
+<mat-tab-group
+  *ngIf="!signer?.signed"
+  [(selectedIndex)]="selectedTabIndex"
+  (selectedIndexChange)="onTabChange($event)"
+  animationDuration="200ms"
+>
+  <!-- ── DRAW TAB ─────────────────────────────────────────────────────── -->
+  <mat-tab *ngIf="cfg.enableDraw">
+    <ng-template mat-tab-label>
+      <mat-icon svgIcon="stylus_note" style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;"></mat-icon>
+      <span class="tab-text">Sign</span>
+    </ng-template>
+
+    <div class="tab-content">
+      <p class="hint-text" *ngIf="signer">
+        <mat-icon>person</mat-icon> Signing as <strong>{{ signer.name }}</strong> ·
+        {{ signer.role }}
+      </p>
+
+      <div
+        class="pad-container"
+        [class.locked]="locked"
+        [style.background]="cfg.canvasBackground"
+        [style.border-color]="cfg.penColor"
+        [style.width.px]="canvasWidth"
+        [style.height.px]="canvasHeight"
+      >
+        <!-- Legacy Canvas -->
+        <canvas
+          *ngIf="cfg.useLegacyDraw"
+          #drawCanvas
+          class="draw-canvas"
+          [width]="canvasWidth"
+          [height]="canvasHeight"
+        ></canvas>
+        <span *ngIf="cfg.useLegacyDraw" class="canvas-watermark">Sign here</span>
+
+        <!-- New Ngx Signature Pad -->
+        <ngx-signature-pad
+          *ngIf="!cfg.useLegacyDraw"
+          #ngxPad
+          [options]="ngxOptions"
+        ></ngx-signature-pad>
+
+        <button mat-icon-button class="canvas-clear-btn" (click)="clearDraw()" matTooltip="Clear canvas" *ngIf="signer?.canEdit !== false && !locked">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+
+      <div class="action-row">
+        <button
+          mat-stroked-button
+          [disabled]="locked"
+          (click)="clearDraw()"
+          matTooltip="Clear the canvas"
+        >
+          <mat-icon>clear_all</mat-icon> Clear
+        </button>
+        <button
+          mat-flat-button
+          class="btn-confirm"
+          [disabled]="locked"
+          (click)="confirmDraw()"
+          matTooltip="Save this signature"
+        >
+          <mat-icon>check_circle</mat-icon> Confirm
+        </button>
+      </div>
+
+      <div
+        *ngIf="saveStatus"
+        class="status-banner"
+        [class.status-success]="saveStatus === 'success'"
+        [class.status-error]="saveStatus === 'error'"
+      >
+        <mat-icon>{{ saveStatus === 'success' ? 'task_alt' : 'error_outline' }}</mat-icon>
+        {{
+          saveStatus === 'success'
+            ? 'Signature saved — choose next user.'
+            : 'Save failed — please sign again.'
+        }}
+      </div>
+    </div>
+  </mat-tab>
+
+  <!-- ── TYPE TAB ──────────────────────────────────────────────────────── -->
+  <mat-tab *ngIf="cfg.enableType">
+    <ng-template mat-tab-label>
+      <mat-icon>keyboard</mat-icon>
+      <span class="tab-text">Write</span>
+    </ng-template>
+
+    <div class="tab-content">
+      <p class="hint-text" *ngIf="signer">
+        <mat-icon>person</mat-icon> Pre-filled for <strong>{{ signer.name }}</strong> — edit if
+        needed
+      </p>
+      <mat-form-field appearance="outline" class="full-width" style="margin-bottom: 8px">
+        <mat-label>Signature name</mat-label>
+        <input
+          matInput
+          [(ngModel)]="typedName"
+          [disabled]="locked"
+          placeholder="Full name"
+          autocomplete="off"
+        />
+        <mat-icon matSuffix style="color: var(--sig-text-muted); opacity: 0.7">edit</mat-icon>
+      </mat-form-field>
+
+      <!-- System font picker -->
+      <div class="font-section">
+        <label class="font-label"><mat-icon>text_fields</mat-icon> Handwriting style</label>
+        <div class="font-options">
+          <button
+            mat-stroked-button
+            *ngFor="let f of fontOptions"
+            [class.font-active]="selectedFont === f.value"
+            (click)="selectedFont = f.value"
+            [matTooltip]="f.label"
+          >
+            <span [style.font-family]="f.value" [style.font-style]="'italic'">{{ f.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live preview -->
+      <div class="type-preview" [style.font-family]="selectedFont" [style.font-style]="'italic'">
+        {{ typedPreview }}
+      </div>
+
+      <div class="action-row">
+        <button
+          mat-stroked-button
+          [disabled]="locked"
+          (click)="typedName = signer?.name ?? ''"
+          matTooltip="Reset to signer name"
+        >
+          <mat-icon>refresh</mat-icon> Reset
+        </button>
+        <button
+          mat-flat-button
+          class="btn-confirm"
+          [disabled]="locked || !typedName.trim()"
+          (click)="confirmTyped()"
+          matTooltip="Confirm typed signature"
+        >
+          <mat-icon>check_circle</mat-icon> Confirm
+        </button>
+      </div>
+
+      <div
+        *ngIf="saveStatus"
+        class="status-banner"
+        [class.status-success]="saveStatus === 'success'"
+        [class.status-error]="saveStatus === 'error'"
+      >
+        <mat-icon>{{ saveStatus === 'success' ? 'task_alt' : 'error_outline' }}</mat-icon>
+        {{
+          saveStatus === 'success'
+            ? 'Signature saved — choose next user.'
+            : 'Save failed — please try again.'
+        }}
+      </div>
+    </div>
+  </mat-tab>
+
+  <!-- ── CAPTURE TAB ────────────────────────────────────────────────────── -->
+  <mat-tab *ngIf="cfg.enableUpload">
+    <ng-template mat-tab-label>
+      <mat-icon>photo_camera</mat-icon>
+      <span class="tab-text">Capture</span>
+    </ng-template>
+
+    <div class="tab-content">
+      <p class="hint-text" *ngIf="signer">
+        <mat-icon>person</mat-icon> Upload image signature for <strong>{{ signer.name }}</strong>
+      </p>
+
+      <!-- Drag-and-drop zone -->
+      <div
+        *ngIf="!uploadPreview"
+        class="drop-zone"
+        [class.drop-active]="isDragOver"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+        matTooltip="Click or drag an image here"
+      >
+        <mat-icon class="drop-icon">cloud_upload</mat-icon>
+        <p>Drag & drop, or <strong>click to browse</strong></p>
+        <span class="drop-hint">PNG · JPG · SVG · Works on all platforms</span>
+      </div>
+      <input #fileInput type="file" accept="image/*" hidden (change)="onFileInput($event)" />
+
+      <!-- Upload Actions -->
+      <div class="upload-actions">
+        <button mat-stroked-button (click)="startCamera()" matTooltip="Capture from device camera">
+          <mat-icon>photo_camera</mat-icon> Camera
+        </button>
+        <button
+          mat-stroked-button
+          *ngIf="uploadPreview"
+          (click)="clearUpload()"
+          matTooltip="Remove uploaded image"
+        >
+          <mat-icon>delete</mat-icon> Remove
+        </button>
+        <input
+          #cameraInput
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          (change)="onFileInput($event)"
+        />
+      </div>
+
+      <!-- Preview -->
+      <div *ngIf="uploadPreview" class="upload-preview">
+        <img [src]="uploadPreview" alt="Signature preview" />
+      </div>
+
+      <div *ngIf="uploadPreview" class="action-row">
+        <button
+          mat-flat-button
+          class="btn-confirm"
+          [disabled]="locked"
+          (click)="confirmUpload()"
+          matTooltip="Confirm this image as signature"
+        >
+          <mat-icon>check_circle</mat-icon> Confirm
+        </button>
+      </div>
+
+      <div
+        *ngIf="saveStatus"
+        class="status-banner"
+        [class.status-success]="saveStatus === 'success'"
+        [class.status-error]="saveStatus === 'error'"
+      >
+        <mat-icon>{{ saveStatus === 'success' ? 'task_alt' : 'error_outline' }}</mat-icon>
+        {{
+          saveStatus === 'success'
+            ? 'Signature saved — choose next user.'
+            : 'Save failed — please try again.'
+        }}
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>

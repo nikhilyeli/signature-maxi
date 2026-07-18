@@ -1,0 +1,264 @@
+<div class="settings-panel-overlay" (click)="closePanel.emit()"></div>
+<div class="settings-panel">
+  <div class="panel-header">
+    <h2>Settings</h2>
+    <div style="display: flex; gap: 8px">
+      <button
+        mat-icon-button
+        color="warn"
+        matTooltip="Restore Defaults"
+        (click)="restoreDefaults()"
+      >
+        <mat-icon>settings_backup_restore</mat-icon>
+      </button>
+      <button mat-icon-button (click)="closePanel.emit()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SECTION: Appearance ────────────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="section-title-row">
+      <h3 class="section-title"><mat-icon>palette</mat-icon> Appearance</h3>
+      <button class="mode-toggle-btn" [class.enabled]="isDarkTheme" (click)="toggleTheme()">
+        <mat-icon>{{ isDarkTheme ? 'dark_mode' : 'light_mode' }}</mat-icon>
+        {{ isDarkTheme ? 'Dark Mode' : 'Light Mode' }}
+      </button>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- ── SECTION: Content & Signers ───────────────────────────────────── -->
+  <div class="settings-section">
+    <h3 class="section-title"><mat-icon>badge</mat-icon> Content &amp; Signers</h3>
+
+    <div class="signer-list-header">
+      <span class="settings-hint"
+        >{{ signers.length }} signer{{ signers.length !== 1 ? 's' : '' }} registered</span
+      >
+      <button mat-stroked-button class="btn-sm" (click)="openSignerList()" *ngIf="!showSignerList">
+        <mat-icon>group</mat-icon> Manage Signers
+      </button>
+      <button mat-stroked-button class="btn-sm" (click)="closeSignerList()" *ngIf="showSignerList">
+        <mat-icon>close</mat-icon> Close
+      </button>
+    </div>
+
+    <!-- ── Signer editor ─────────────────────────────────────────────── -->
+    <div class="signer-editor" *ngIf="showSignerList">
+      <div class="signer-row header-row">
+        <span class="col-name">Name *</span>
+        <span class="col-role">Role</span>
+        <span class="col-mand" title="Mandatory">Req.</span>
+        <span class="col-edit" title="Can Edit">Ed.</span>
+        <span class="col-delete" title="Can Delete">Del.</span>
+        <span class="col-del"></span>
+      </div>
+
+      <div class="signer-row" *ngFor="let d of signerDrafts; trackBy: trackByDraftId">
+        <input class="draft-input" [(ngModel)]="d.name" placeholder="Full name" />
+        <select class="draft-select" [(ngModel)]="d.role">
+          <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+        </select>
+        <input type="checkbox" [(ngModel)]="d.mandatory" class="draft-check" title="Mandatory" />
+        <input type="checkbox" [(ngModel)]="d.canEdit" class="draft-check" title="Can Edit" />
+        <input type="checkbox" [(ngModel)]="d.canDelete" class="draft-check" title="Can Delete" />
+        <button
+          mat-icon-button
+          class="icon-xs del-btn"
+          matTooltip="Remove signer"
+          (click)="removeSignerRow(d)"
+        >
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+
+      <div class="signer-row empty-row" *ngIf="signerDrafts.length === 0">
+        <span>No signers. Add one below.</span>
+      </div>
+
+      <div class="signer-editor-actions">
+        <button mat-stroked-button class="btn-sm" (click)="addSignerRow()">
+          <mat-icon>person_add</mat-icon> Add Signer
+        </button>
+        <div class="spacer"></div>
+        <button
+          mat-stroked-button
+          class="btn-sm"
+          matTooltip="Reset to default signers"
+          (click)="restoreDefaultSigners()"
+        >
+          <mat-icon>settings_backup_restore</mat-icon> Default List
+        </button>
+        <button mat-stroked-button class="btn-sm" (click)="resetSignerList()">
+          <mat-icon>refresh</mat-icon> Revert
+        </button>
+        <button mat-flat-button class="btn-sm btn-accent" (click)="applySigners()">
+          <mat-icon>check_circle</mat-icon> Apply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- ── SECTION: Signature Modes ──────────────────────────────────────── -->
+  <div class="settings-section">
+    <h3 class="section-title"><mat-icon>tune</mat-icon> Signature Modes</h3>
+    <p class="settings-hint">Enable/disable capture methods in the signature dialog</p>
+    <div class="toggles-row">
+      <button
+        class="mode-toggle-btn"
+        [class.enabled]="captureConfig.enableDraw"
+        (click)="captureConfig.enableDraw = !captureConfig.enableDraw; updateCaptureConfig()"
+      >
+        <span class="status-dot"></span> <mat-icon>draw</mat-icon> Sign / Draw
+      </button>
+      <button
+        class="mode-toggle-btn"
+        [class.enabled]="captureConfig.enableType"
+        (click)="captureConfig.enableType = !captureConfig.enableType; updateCaptureConfig()"
+      >
+        <span class="status-dot"></span> <mat-icon>keyboard</mat-icon> Write / Type
+      </button>
+      <button
+        class="mode-toggle-btn"
+        [class.enabled]="captureConfig.enableUpload"
+        (click)="captureConfig.enableUpload = !captureConfig.enableUpload; updateCaptureConfig()"
+      >
+        <span class="status-dot"></span> <mat-icon>photo_camera</mat-icon> Capture / Upload
+      </button>
+    </div>
+
+    <h3 class="section-title" style="margin-top: 16px">
+      <mat-icon>brush</mat-icon> Drawing Pad Mode
+    </h3>
+    <p class="settings-hint">Select the underlying canvas technology</p>
+    <div class="toggles-row">
+      <button
+        class="mode-toggle-btn"
+        [class.enabled]="!captureConfig.useLegacyDraw"
+        (click)="captureConfig.useLegacyDraw = !captureConfig.useLegacyDraw; updateCaptureConfig()"
+      >
+        <span class="status-dot"></span> {{ captureConfig.useLegacyDraw ? 'Legacy' : 'New' }}
+      </button>
+    </div>
+
+    <h3 class="section-title" style="margin-top: 16px">
+      <mat-icon>aspect_ratio</mat-icon> Canvas Size
+    </h3>
+    <p class="settings-hint">Strict 9:4 aspect ratio</p>
+    <div class="toggles-row">
+      <select
+        class="draft-select"
+        [ngModel]="captureConfig.canvasSize"
+        (ngModelChange)="captureConfig.canvasSize = $event; updateCaptureConfig()"
+      >
+        /* style="width: auto; padding: 6px; border-radius: 4px; border: 1px solid #d0d4e8" */
+        <option value="small">Small (450 x 200)</option>
+        <option value="medium">Medium (900 x 400)</option>
+        <option value="large">Large (1350 x 600)</option>
+      </select>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- ── SECTION: Watermark ─────────────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="section-title-row">
+      <h3 class="section-title"><mat-icon>water_drop</mat-icon> Watermark</h3>
+      <button
+        class="mode-toggle-btn"
+        [class.enabled]="watermarkConfig.enabled"
+        (click)="updateWatermark({ enabled: !watermarkConfig.enabled })"
+      >
+        <span class="status-dot"></span> {{ watermarkConfig.enabled ? 'Enabled' : 'Disabled' }}
+      </button>
+    </div>
+    <p class="settings-hint">Applied to newly confirmed signatures only</p>
+
+    <div class="watermark-grid" [class.wm-off]="!watermarkConfig.enabled">
+      <div class="wm-field-wrap">
+        <label class="wm-label">Text Color</label>
+        <div class="color-row">
+          <input
+            type="color"
+            class="color-swatch"
+            [ngModel]="watermarkConfig.textColor"
+            (ngModelChange)="updateWatermark({ textColor: $event })"
+          />
+          <code class="color-code">{{ watermarkConfig.textColor }}</code>
+        </div>
+      </div>
+
+      <div class="wm-field-wrap">
+        <label class="wm-label">Opacity</label>
+        <div class="slider-row">
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            class="wm-range"
+            [ngModel]="watermarkConfig.opacity"
+            (ngModelChange)="updateWatermark({ opacity: +$event })"
+          />
+          <span class="wm-val">{{ watermarkConfig.opacity }}</span>
+        </div>
+      </div>
+
+      <div class="wm-field-wrap">
+        <label class="wm-label">Angle (°)</label>
+        <div class="slider-row">
+          <input
+            type="range"
+            min="-90"
+            max="90"
+            step="5"
+            class="wm-range"
+            [ngModel]="watermarkConfig.angleDeg"
+            (ngModelChange)="updateWatermark({ angleDeg: +$event })"
+          />
+          <span class="wm-val">{{ watermarkConfig.angleDeg }}°</span>
+        </div>
+      </div>
+
+      <div class="wm-field-wrap">
+        <label class="wm-label">Font Size</label>
+        <div class="slider-row">
+          <input
+            type="range"
+            min="8"
+            max="36"
+            step="1"
+            class="wm-range"
+            [ngModel]="watermarkConfig.fontSize"
+            (ngModelChange)="updateWatermark({ fontSize: +$event })"
+          />
+          <span class="wm-val">{{ watermarkConfig.fontSize }}px</span>
+        </div>
+      </div>
+
+      <div class="wm-field-wrap">
+        <label class="wm-label">Content Label</label>
+        <input
+          class="wm-text-input"
+          [ngModel]="watermarkConfig.contentLabel"
+          (ngModelChange)="updateWatermark({ contentLabel: $event })"
+        />
+      </div>
+
+      <div class="wm-field-wrap">
+        <label class="wm-label">Timestamp Label</label>
+        <input
+          class="wm-text-input"
+          [ngModel]="watermarkConfig.timestampLabel"
+          (ngModelChange)="updateWatermark({ timestampLabel: $event })"
+        />
+      </div>
+    </div>
+  </div>
+</div>

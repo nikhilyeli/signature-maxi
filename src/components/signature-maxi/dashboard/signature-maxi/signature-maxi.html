@@ -1,0 +1,135 @@
+<div class="dashboard">
+  <!-- ══ TOP HEADER ══════════════════════════════════════════════════════════ -->
+  <header class="dashboard-header">
+    <div class="header-brand">
+      <img src="favicon.svg" alt="Signature Maxi Logo" class="brand-icon" />
+      <div>
+        <h1>Signature Maxi Dashboard</h1>
+
+        <!-- Content ID display / inline editor -->
+        <div class="content-id-row" *ngIf="!editingContentId">
+          <span class="content-id-label">Content ID:</span>
+          <code class="content-id-val">{{ contentId }}</code>
+          <button
+            mat-icon-button
+            class="icon-xs"
+            matTooltip="Edit Content ID"
+            (click)="startEditContentId()"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        <div class="content-id-edit" *ngIf="editingContentId">
+          <input
+            class="id-input"
+            [(ngModel)]="contentIdDraft"
+            placeholder="Enter content ID"
+            (keyup.enter)="applyContentId()"
+            (keyup.escape)="cancelEditContentId()"
+            autofocus
+          />
+          <button mat-icon-button class="icon-xs ok" matTooltip="Apply" (click)="applyContentId()">
+            <mat-icon>check</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="icon-xs"
+            matTooltip="Cancel"
+            (click)="cancelEditContentId()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pills -->
+    <div class="header-pills">
+      <span class="pill pill-blue">{{ signers.length }} signers</span>
+      <span class="pill pill-green" *ngIf="signedCount > 0"
+        >{{ signedCount }}/{{ signers.length }} signed</span
+      >
+      <span class="pill pill-yellow" *ngIf="mandatoryComplete">
+        <mat-icon>task_alt</mat-icon> Complete
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="header-actions">
+      <!-- Settings toggle -->
+      <button
+        mat-icon-button
+        [matTooltip]="showSettings ? 'Hide settings' : 'Settings'"
+        [class.btn-active]="showSettings"
+        (click)="showSettings = !showSettings"
+      >
+        <mat-icon>settings</mat-icon>
+      </button>
+
+      <button mat-stroked-button matTooltip="Reset all signatures" (click)="resetAll()">
+        <mat-icon>restart_alt</mat-icon> Reset All
+      </button>
+
+      <button
+        mat-flat-button
+        class="btn-primary"
+        matTooltip="Open signature panel"
+        (click)="openSignatureDialog()"
+      >
+        <mat-icon svgIcon="stylus_note"></mat-icon> Sign All
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ SETTINGS PANEL ══════════════════════════════════════════════════════ -->
+  <app-settings-panel
+    *ngIf="showSettings"
+    [contentId]="contentId"
+    [isDarkTheme]="isDarkTheme"
+    (themeToggled)="setTheme($event)"
+    (closePanel)="showSettings = false"
+  ></app-settings-panel>
+
+  <!-- ══ PROGRESS ══════════════════════════════════════════════════════════ -->
+  <div class="progress-wrap" *ngIf="signers.length > 0">
+    <div class="progress-track">
+      <div
+        class="progress-fill"
+        [style.width.%]="(signedCount / signers.length) * 100"
+        [class.fill-complete]="mandatoryComplete"
+      ></div>
+    </div>
+    <span class="progress-label"
+      >{{ signedCount }}/{{ signers.length }} signed · {{ mandatoryCount }} mandatory</span
+    >
+  </div>
+
+  <!-- ══ SIGNER GRID ════════════════════════════════════════════════════════ -->
+  <div class="signers-grid" *ngIf="signers.length >= 0">
+    <app-signer-card
+      *ngFor="let signer of signers; trackBy: trackById"
+      [signer]="signer"
+      (view)="viewSignature($event)"
+      (sign)="openSignerDialog($event)"
+      (delete)="deleteSignature($event)"
+    ></app-signer-card>
+  </div>
+
+  <!-- ══ EMPTY STATE ════════════════════════════════════════════════════════ -->
+  <div class="empty-state" *ngIf="signers.length === 0">
+    <mat-icon>group_add</mat-icon>
+    <p>No signers yet</p>
+    <span>Open Settings → Manage Signers to add people</span>
+    <button mat-flat-button class="btn-primary" (click)="showSettings = true">
+      <mat-icon>person_add</mat-icon> Add Signers
+    </button>
+  </div>
+
+  <!-- ══ SUBMIT BANNER ═════════════════════════════════════════════════════ -->
+  <div class="submit-banner" *ngIf="mandatoryComplete">
+    <mat-icon>task_alt</mat-icon>
+    <span>All mandatory signatures complete — ready to submit.</span>
+    <button mat-stroked-button style="margin-left: auto; border-color: var(--sig-border-solid)" (click)="resetAll()"><mat-icon>restart_alt</mat-icon> Reset All</button>
+    <button mat-flat-button class="btn-submit" (click)="submitDocument()"><mat-icon>send</mat-icon> Submit Document</button>
+  </div>
+</div>
