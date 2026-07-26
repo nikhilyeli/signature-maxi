@@ -11,7 +11,11 @@ export class SignatureHelper {
   }
 
   /** Parses a data URL or raw SVG string into a normalized SVG XML string */
-  static toSvgXml(signature: string | null | undefined): string | null {
+  static toSvgXml(
+    signature: string | null | undefined,
+    expectedWidth?: number,
+    expectedHeight?: number,
+  ): string | null {
     if (!signature) return null;
     const trimmed = signature.trim();
     if (!trimmed) return null;
@@ -34,6 +38,46 @@ export class SignatureHelper {
     if (!decoded.includes('xmlns=')) {
       decoded = decoded.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     }
+
+    const svgTagMatch = decoded.match(/<svg[^>]*>/i);
+    if (svgTagMatch) {
+      let svgTag = svgTagMatch[0];
+
+      if (expectedWidth && expectedHeight) {
+        const viewBoxStr = `viewBox="0 0 ${expectedWidth} ${expectedHeight}"`;
+        const widthStr = `width="${expectedWidth}"`;
+        const heightStr = `height="${expectedHeight}"`;
+
+        if (svgTag.match(/viewBox=/i)) {
+          svgTag = svgTag.replace(/viewBox=["'][^"']+["']/i, viewBoxStr);
+        } else {
+          svgTag = svgTag.replace('<svg', `<svg ${viewBoxStr}`);
+        }
+
+        if (svgTag.match(/width=/i)) {
+          svgTag = svgTag.replace(/width=["'][^"']+["']/i, widthStr);
+        } else {
+          svgTag = svgTag.replace('<svg', `<svg ${widthStr}`);
+        }
+
+        if (svgTag.match(/height=/i)) {
+          svgTag = svgTag.replace(/height=["'][^"']+["']/i, heightStr);
+        } else {
+          svgTag = svgTag.replace('<svg', `<svg ${heightStr}`);
+        }
+      } else if (!svgTag.match(/viewBox=/i)) {
+        const wMatch = svgTag.match(/width=["']([^"']+)["']/i);
+        const hMatch = svgTag.match(/height=["']([^"']+)["']/i);
+        if (wMatch && hMatch) {
+          const w = wMatch[1];
+          const h = hMatch[1];
+          svgTag = svgTag.replace('<svg', `<svg viewBox="0 0 ${w} ${h}"`);
+        }
+      }
+
+      decoded = decoded.replace(svgTagMatch[0], svgTag);
+    }
+
     return decoded;
   }
 
@@ -116,7 +160,7 @@ export class SignatureHelper {
 
   /** Wraps an image data URL into an SVG <image> element for uniform SVG storage */
   static imageToSvg(dataUrl: string, width = 450, height = 200): string {
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}">
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
   <image x="0" y="0" width="${width}" height="${height}" href="${dataUrl}" preserveAspectRatio="xMidYMid meet"/>
 </svg>`;
   }

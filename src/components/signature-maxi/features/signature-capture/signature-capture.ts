@@ -5,6 +5,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   NgZone,
   OnChanges,
@@ -122,6 +123,7 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
   // ── ViewChild ───────────────────────────────────────────────────────────────
   @ViewChild('drawCanvas', { static: false }) drawCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('ngxPad') ngxSignaturePad?: NgxSignaturePadComponent;
+  @ViewChild('padContainer', { static: false }) padContainer?: ElementRef<HTMLDivElement>;
   @ViewChild('cameraVideo', { static: false }) cameraVideo?: ElementRef<HTMLVideoElement>;
   @ViewChild('cameraInput') cameraInput?: ElementRef<HTMLInputElement>;
 
@@ -136,16 +138,27 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
   saveStatus: 'success' | 'error' | null = null;
   locked = false;
 
-  get canvasWidth(): number {
+  private _calculatedWidth = 450;
+  private _calculatedHeight = 200;
+
+  get baseCanvasWidth(): number {
     if (this.cfg.canvasSize === 'large') return 1350;
     if (this.cfg.canvasSize === 'medium') return 900;
     return 450; // 'small'
   }
 
-  get canvasHeight(): number {
+  get baseCanvasHeight(): number {
     if (this.cfg.canvasSize === 'large') return 600;
     if (this.cfg.canvasSize === 'medium') return 400;
     return 200; // 'small'
+  }
+
+  get canvasWidth(): number {
+    return this._calculatedWidth;
+  }
+
+  get canvasHeight(): number {
+    return this._calculatedHeight;
   }
 
   ngxOptions: NgxSignatureOptions = {
@@ -176,15 +189,50 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
       });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.cfg = { ...DEFAULT_CAPTURE_CONFIG, ...this.config };
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateCanvasDimensions();
+  }
+
+  updateCanvasDimensions(): void {
+    if (!this.cfg) return;
+
+    let maxWidth = this.padContainer?.nativeElement?.parentElement?.clientWidth;
+    if (!maxWidth || maxWidth <= 0) {
+      maxWidth = Math.min(window.innerWidth - 48, 800);
+    }
+
+    const baseW = this.baseCanvasWidth;
+    const baseH = this.baseCanvasHeight;
+    const aspectRatio = baseW / baseH;
+
+    const targetWidth = Math.min(baseW, maxWidth);
+    const targetHeight = Math.round(targetWidth / aspectRatio);
+
+    this._calculatedWidth = targetWidth;
+    this._calculatedHeight = targetHeight;
+
     this.ngxOptions = {
       ...this.ngxOptions,
-      width: this.canvasWidth,
-      height: this.canvasHeight,
+      width: this._calculatedWidth,
+      height: this._calculatedHeight,
       backgroundColor: this.cfg.canvasBackground,
       penColor: this.cfg.penColor,
     };
+
+    if (this.cfg.useLegacyDraw) {
+      this.initPad();
+    }
+
+    this.cdr.detectChanges();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.cfg = { ...DEFAULT_CAPTURE_CONFIG, ...this.config };
+
+    setTimeout(() => {
+      this.updateCanvasDimensions();
+    }, 0);
 
     const signerChange = changes['signer'];
     if (signerChange) {
@@ -205,7 +253,11 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
     this.cfg = { ...DEFAULT_CAPTURE_CONFIG, ...this.config };
     // Prefill name on first load
     if (this.signer?.name) this.typedName = this.signer.name;
-    if (this.cfg.enableDraw) setTimeout(() => this.initPad(), 100);
+    if (this.cfg.enableDraw) {
+      setTimeout(() => {
+        this.updateCanvasDimensions();
+      }, 100);
+    }
   }
 
   ngOnDestroy(): void {
@@ -215,8 +267,11 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
   // ── Tab ──────────────────────────────────────────────────────────────────────
   onTabChange(index: number): void {
     this.selectedTabIndex = index;
-    if (index === 0 && this.cfg.enableDraw && this.cfg.useLegacyDraw)
-      setTimeout(() => this.initPad(), 100);
+    if (index === 0 && this.cfg.enableDraw) {
+      setTimeout(() => {
+        this.updateCanvasDimensions();
+      }, 100);
+    }
   }
 
   // ── Draw ─────────────────────────────────────────────────────────────────────
@@ -245,11 +300,19 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
 
     if (this.cfg.useLegacyDraw) {
       if (!this.signaturePad || this.signaturePad.isEmpty()) return;
-      svgXml = SignatureHelper.toSvgXml(this.signaturePad.toDataURL('image/svg+xml') ?? '');
+      svgXml = SignatureHelper.toSvgXml(
+        this.signaturePad.toDataURL('image/svg+xml') ?? '',
+        this.canvasWidth,
+        this.canvasHeight,
+      );
     } else {
       if (!this.ngxSignaturePad || this.ngxSignaturePad.isEmpty()) return;
       // Get SVG from ngx-signature-pad
-      svgXml = SignatureHelper.toSvgXml(this.ngxSignaturePad.toDataURL('image/svg+xml') ?? '');
+      svgXml = SignatureHelper.toSvgXml(
+        this.ngxSignaturePad.toDataURL('image/svg+xml') ?? '',
+        this.canvasWidth,
+        this.canvasHeight,
+      );
     }
 
     try {
