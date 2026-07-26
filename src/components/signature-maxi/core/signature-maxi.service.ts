@@ -189,31 +189,7 @@ export class SignatureMaxiService {
   }
 
   toSvgXml(signature: string | null | undefined): string | null {
-    if (!signature) return null;
-    const trimmed = signature.trim();
-    if (!trimmed) return null;
-
-    let decoded = trimmed;
-    if (trimmed.startsWith('data:image/svg+xml')) {
-      const commaIndex = trimmed.indexOf(',');
-      if (commaIndex === -1) return null;
-      const payload = trimmed.slice(commaIndex + 1);
-      try {
-        if (trimmed.includes(';base64,')) decoded = atob(payload);
-        else decoded = decodeURIComponent(payload);
-      } catch {
-        return null;
-      }
-    } else if (!trimmed.startsWith('<svg')) {
-      return trimmed;
-    }
-
-    // Normalize SVG to prevent breakage
-    if (!decoded.includes('xmlns=')) {
-      decoded = decoded.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-    }
-
-    return decoded;
+    return SignatureHelper.toSvgXml(signature);
   }
 
   toSignatureImageSrc(signature: string | null | undefined): string | null {
