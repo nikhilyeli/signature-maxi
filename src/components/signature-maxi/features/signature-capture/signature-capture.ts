@@ -164,7 +164,7 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
   ngxOptions: NgxSignatureOptions = {
     width: 450,
     height: 200,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(0,0,0,0)',
     penColor: 'black',
   };
 
@@ -216,7 +216,7 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
       ...this.ngxOptions,
       width: this._calculatedWidth,
       height: this._calculatedHeight,
-      backgroundColor: this.cfg.canvasBackground,
+      backgroundColor: 'rgba(0,0,0,0)',
       penColor: this.cfg.penColor,
     };
 
@@ -286,7 +286,7 @@ export class SignatureCaptureComponent implements AfterViewInit, OnDestroy, OnCh
       this.signaturePad.off();
     }
     this.signaturePad = new SignaturePad(canvas, {
-      backgroundColor: this.cfg.canvasBackground,
+      backgroundColor: 'rgba(0,0,0,0)',
       penColor: this.cfg.penColor,
       minWidth: 1.5,
       maxWidth: 3,

@@ -1,9 +1,9 @@
 <div class="dashboard">
   <!-- ══ TOP HEADER ══════════════════════════════════════════════════════════ -->
   <header class="dashboard-header">
-    <div class="header-brand">
+    <div class="header-brand" data-tour="brand">
       <img src="favicon.svg" alt="Signature Maxi Logo" class="brand-icon" />
-      <div>
+      <div data-tour="content-id">
         <h1>Signature Maxi Dashboard</h1>
 
         <!-- Content ID display / inline editor -->
@@ -44,7 +44,7 @@
     </div>
 
     <!-- Pills -->
-    <div class="header-pills">
+    <div class="header-pills" data-tour="status-pills">
       <span class="pill pill-blue">{{ signers.length }} signers</span>
       <span class="pill pill-green" *ngIf="signedCount > 0"
         >{{ signedCount }}/{{ signers.length }} signed</span
@@ -56,9 +56,26 @@
 
     <!-- Actions -->
     <div class="header-actions">
+      <!-- Product guide -->
+      <button mat-icon-button matTooltip="Product guide" [matMenuTriggerFor]="guideMenu">
+        <mat-icon>help_outline</mat-icon>
+      </button>
+      <mat-menu #guideMenu="matMenu">
+        <button mat-menu-item (click)="startFeatureTour()">
+          <mat-icon>explore</mat-icon> Explore Features
+        </button>
+        <button mat-menu-item (click)="startCustomizationTour()">
+          <mat-icon>tune</mat-icon> Customization Guide
+        </button>
+        <button mat-menu-item (click)="openProductReel()">
+          <mat-icon>smart_display</mat-icon> Watch Product Tour
+        </button>
+      </mat-menu>
+
       <!-- Settings toggle -->
       <button
         mat-icon-button
+        data-tour="settings-toggle"
         [matTooltip]="showSettings ? 'Hide settings' : 'Settings'"
         [class.btn-active]="showSettings"
         (click)="showSettings = !showSettings"
@@ -73,6 +90,7 @@
       <button
         mat-flat-button
         class="btn-primary"
+        data-tour="sign-all"
         matTooltip="Open signature panel"
         (click)="openSignatureDialog()"
       >
@@ -91,7 +109,7 @@
   ></app-settings-panel>
 
   <!-- ══ PROGRESS ══════════════════════════════════════════════════════════ -->
-  <div class="progress-wrap" *ngIf="signers.length > 0">
+  <div class="progress-wrap" data-tour="progress" *ngIf="signers.length > 0">
     <div class="progress-track">
       <div
         class="progress-fill"
@@ -105,7 +123,7 @@
   </div>
 
   <!-- ══ SIGNER GRID ════════════════════════════════════════════════════════ -->
-  <div class="signers-grid" *ngIf="signers.length >= 0">
+  <div class="signers-grid" data-tour="signers-grid" *ngIf="signers.length >= 0">
     <app-signer-card
       *ngFor="let signer of signers; trackBy: trackById"
       [signer]="signer"

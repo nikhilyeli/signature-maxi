@@ -18,7 +18,7 @@
   </div>
 
   <!-- ── SECTION: Appearance ────────────────────────────────────────────── -->
-  <div class="settings-section">
+  <div class="settings-section" data-tour="appearance">
     <div class="section-title-row">
       <h3 class="section-title"><mat-icon>palette</mat-icon> Appearance</h3>
       <button class="mode-toggle-btn" [class.enabled]="isDarkTheme" (click)="toggleTheme()">
@@ -34,7 +34,7 @@
   <div class="settings-section">
     <h3 class="section-title"><mat-icon>badge</mat-icon> Content &amp; Signers</h3>
 
-    <div class="signer-list-header">
+    <div class="signer-list-header" data-tour="manage-signers">
       <span class="settings-hint"
         >{{ signers.length }} signer{{ signers.length !== 1 ? 's' : '' }} registered</span
       >
@@ -108,7 +108,7 @@
   <div class="settings-section">
     <h3 class="section-title"><mat-icon>tune</mat-icon> Signature Modes</h3>
     <p class="settings-hint">Enable/disable capture methods in the signature dialog</p>
-    <div class="toggles-row">
+    <div class="toggles-row" data-tour="signature-modes">
       <button
         class="mode-toggle-btn"
         [class.enabled]="captureConfig.enableDraw"
@@ -136,7 +136,7 @@
       <mat-icon>brush</mat-icon> Drawing Pad Mode
     </h3>
     <p class="settings-hint">Select the underlying canvas technology</p>
-    <div class="toggles-row">
+    <div class="toggles-row" data-tour="drawing-pad-mode">
       <button
         class="mode-toggle-btn"
         [class.enabled]="!captureConfig.useLegacyDraw"
@@ -150,7 +150,7 @@
       <mat-icon>aspect_ratio</mat-icon> Canvas Size
     </h3>
     <p class="settings-hint">Strict 9:4 aspect ratio</p>
-    <div class="toggles-row">
+    <div class="toggles-row" data-tour="canvas-size">
       <select
         class="draft-select"
         [ngModel]="captureConfig.canvasSize"
@@ -167,7 +167,7 @@
   <mat-divider></mat-divider>
 
   <!-- ── SECTION: Watermark ─────────────────────────────────────────────── -->
-  <div class="settings-section">
+  <div class="settings-section" data-tour="watermark">
     <div class="section-title-row">
       <h3 class="section-title"><mat-icon>water_drop</mat-icon> Watermark</h3>
       <button

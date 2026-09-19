@@ -76,6 +76,17 @@ button[mat-stroked-button] {
   transition: opacity 0.2s, border-color 0.2s;
   overflow: hidden;
 
+  &::before {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 30%;
+    border-bottom: 1px dashed rgba(215, 159, 40, 0.35);
+    pointer-events: none;
+    z-index: 1;
+  }
+
   &:hover {
     border-color: var(--sig-yellow, #d79f28);
   }

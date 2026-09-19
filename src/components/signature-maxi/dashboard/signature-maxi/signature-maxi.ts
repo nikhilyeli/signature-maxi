@@ -6,13 +6,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { ProductGuideService } from '../../core/product-guide.service';
 import { SignatureMaxiService } from '../../core/signature-maxi.service';
 import { Signer } from '../../core/signer.interface';
 import { SignatureDialogComponent } from '../../features/signature-dialog/signature-dialog';
 import { SignatureViewerComponent } from '../../features/signature-preview/signature-viewer';
+import { ProductReelComponent } from '../../features/product-reel/product-reel';
 import { SettingsPanelComponent } from '../settings-panel/settings-panel';
 import { SignerCardComponent } from '../signer-card/signer-card';
 
@@ -34,6 +37,7 @@ export const DEFAULT_SIGNERS: Signer[] = [
     FormsModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
     MatTooltipModule,
     MatDialogModule,
     MatSnackBarModule,
@@ -60,6 +64,7 @@ export class SignatureMaxiComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly iconRegistry: MatIconRegistry,
     private readonly sanitizer: DomSanitizer,
+    private readonly productGuide: ProductGuideService,
   ) {
     this.iconRegistry.addSvgIcon(
       'stylus_note',
@@ -148,6 +153,26 @@ export class SignatureMaxiComponent implements OnInit {
   submitDocument(): void {
     this.snackBar.open('Document submitted successfully!', 'OK', { duration: 3000 });
     this.resetAll();
+  }
+
+  /* ── Product guide ───────────────────────────────────────────────────────── */
+  startFeatureTour(): void {
+    this.showSettings = false;
+    this.productGuide.startFeatureTour();
+  }
+
+  startCustomizationTour(): void {
+    this.showSettings = true;
+    this.cdr.detectChanges();
+    setTimeout(() => this.productGuide.startCustomizationTour(), 150);
+  }
+
+  openProductReel(): void {
+    this.dialog.open(ProductReelComponent, {
+      panelClass: 'product-reel-panel',
+      width: '1040px',
+      maxWidth: '96vw',
+    });
   }
 
   /* ── Computed ────────────────────────────────────────────────────────────── */
