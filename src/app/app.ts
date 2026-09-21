@@ -22,5 +22,5 @@ import { SignatureMaxiComponent } from '../components/signature-maxi/dashboard/s
   styleUrl: './app.scss', // Note: Angular 17+ uses styleUrl (singular)
 })
 export class AppComponent {
-  title = 'Signature Maxi';
+  // title = 'Signature Maxi';
 }

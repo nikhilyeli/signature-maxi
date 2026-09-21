@@ -1,0 +1,97 @@
+<div class="role-list">
+  <section class="role-group" *ngFor="let g of groups; let gi = index; trackBy: trackByRole" [attr.aria-label]="g.role + ' role'">
+    <header class="role-label" [attr.data-tour]="gi === 0 ? 'role-label' : null">
+      <span class="role-name">{{ g.role }}</span>
+      <span
+        *ngIf="g.mandatory"
+        class="req-star"
+        matTooltip="Mandatory role: at least one signer in it is required"
+        aria-label="Mandatory"
+        >*</span
+      >
+      <button
+        type="button"
+        class="help-btn"
+        [matTooltip]="helpFor(g.role)"
+        matTooltipPosition="right"
+        [attr.aria-label]="'What the ' + g.role + ' role means'"
+      >
+        <mat-icon>help_outline</mat-icon>
+      </button>
+    </header>
+
+    <div class="role-users">
+      <div class="user-row" *ngFor="let s of g.signers; let si = index; trackBy: trackById" [attr.data-tour]="gi === 0 && si === 0 ? 'user-row' : null">
+        <div class="user-card" tabindex="0" [class.is-signed]="s.signed" [class.is-mandatory]="s.mandatory">
+          <mat-icon class="info-icon" aria-hidden="true">info_outline</mat-icon>
+          <div class="user-body">
+            <span class="user-name">{{ s.name }}</span>
+            <span class="user-email" [class.missing]="!s.email">{{ s.email || 'No email on file' }}</span>
+            <span class="user-status done" *ngIf="s.signed">
+              <mat-icon>check_circle</mat-icon>
+              Has signed<ng-container *ngIf="s.signedAt"> at <strong>{{ s.signedAt }}</strong></ng-container>
+            </span>
+          </div>
+
+          <span
+            class="view-wrap"
+            *ngIf="s.signed && previewSrc(s) as src"
+            tabindex="0"
+            role="img"
+            [attr.aria-label]="'Signature preview of ' + s.name"
+          >
+            <mat-icon class="view-icon">image</mat-icon>
+            <span class="rich-tip" role="tooltip">
+              <span class="tip-sheet"><img [src]="src" [alt]="'Signature of ' + s.name" /></span>
+              <span class="tip-meta" *ngIf="s.signedAt">Signed {{ s.signedAt }}</span>
+            </span>
+          </span>
+        </div>
+
+        <div class="user-actions">
+          <button
+            *ngIf="!s.signed"
+            mat-icon-button
+            class="act act-add"
+            matTooltip="Add signature"
+            [attr.aria-label]="'Add signature for ' + s.name"
+            (click)="sign.emit(s)"
+          >
+            <mat-icon svgIcon="stylus_note"></mat-icon>
+          </button>
+          <button
+            *ngIf="s.signed"
+            mat-icon-button
+            class="act"
+            matTooltip="Edit signature"
+            [disabled]="s.canEdit === false"
+            [attr.aria-label]="'Edit signature of ' + s.name"
+            (click)="sign.emit(s)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="act"
+            matTooltip="View signature"
+            [disabled]="!s.signed"
+            [attr.aria-label]="'View signature of ' + s.name"
+            (click)="view.emit(s)"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="act act-delete"
+            matTooltip="Delete signature"
+            [disabled]="!s.signed || s.canDelete === false"
+            [attr.aria-label]="'Delete signature of ' + s.name"
+            (click)="delete.emit(s)"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

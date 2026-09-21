@@ -69,6 +69,13 @@ html, body {
   padding: 0 !important;
 }
 
+.product-reel-panel .mat-mdc-dialog-surface {
+  background: #0a0d13 !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
 /* ══ Signer list options (global) ═════════════════════════════════════════ */
 .signer-option {
   --mdc-list-list-item-label-text-color:          var(--sig-text);
@@ -95,6 +102,19 @@ html, body {
   --mat-slide-toggle-label-text-color:      var(--sig-text);
 }
 
+/* ══ Menu overrides (Product guide) ═══════════════════════════════════════ */
+.mat-mdc-menu-panel {
+  background: var(--sig-surface) !important;
+  border: 1px solid var(--sig-border-solid) !important;
+  border-radius: var(--sig-radius) !important;
+}
+.mat-mdc-menu-panel .mat-mdc-menu-item {
+  color: var(--sig-text) !important;
+  font-size: 0.85rem;
+  mat-icon { color: var(--sig-text-muted); margin-right: 4px; }
+  &:hover:not([disabled]) { background: var(--sig-surface-3) !important; }
+}
+
 /* ══ Tooltip overrides ════════════════════════════════════════════════════ */
 .mdc-tooltip__surface {
   background-color: var(--sig-surface) !important;
@@ -111,6 +131,76 @@ html, body {
 .cdk-global-overlay-wrapper {
   z-index: 100000 !important;
 }
+
+/* ══ Product Guide (Shepherd.js tours) ═══════════════════════════════════ */
+.shepherd-modal-overlay-container { z-index: 100001 !important; }
+
+.shepherd-element {
+  z-index: 100002 !important;
+  background: var(--sig-surface) !important;
+  border: 1px solid var(--sig-border-solid) !important;
+  border-radius: var(--sig-radius) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24) !important;
+  max-width: 360px;
+  font-family: inherit;
+}
+
+.shepherd-arrow:before { background: var(--sig-surface) !important; border: 1px solid var(--sig-border-solid) !important; }
+.shepherd-element[data-popper-placement^='top'] .shepherd-arrow:before { border-top: none; border-left: none; }
+.shepherd-element[data-popper-placement^='bottom'] .shepherd-arrow:before { border-bottom: none; border-right: none; }
+.shepherd-element[data-popper-placement^='left'] .shepherd-arrow:before { border-left: none; border-bottom: none; }
+.shepherd-element[data-popper-placement^='right'] .shepherd-arrow:before { border-right: none; border-top: none; }
+
+.shepherd-header {
+  background: var(--sig-surface) !important;
+  padding: 14px 16px 0 !important;
+  border-radius: var(--sig-radius) var(--sig-radius) 0 0 !important;
+}
+
+.shepherd-title {
+  color: var(--sig-yellow) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+}
+
+.shepherd-cancel-icon { color: var(--sig-text-muted) !important; }
+.shepherd-cancel-icon:hover { color: var(--sig-yellow) !important; }
+
+.shepherd-text {
+  color: var(--sig-text) !important;
+  font-size: 0.85rem !important;
+  line-height: 1.5 !important;
+  padding: 10px 16px 4px !important;
+}
+
+.shepherd-footer {
+  padding: 8px 16px 16px !important;
+  gap: 8px;
+}
+
+.shepherd-button {
+  background: var(--sig-yellow) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  border-radius: var(--sig-radius) !important;
+  padding: 6px 14px !important;
+  transition: background 0.2s;
+}
+.shepherd-button:not(:disabled):hover { background: var(--sig-yellow-dark) !important; }
+
+.shepherd-button-secondary {
+  background: transparent !important;
+  color: var(--sig-text-muted) !important;
+  border: 1px solid var(--sig-border-solid) !important;
+}
+.shepherd-button-secondary:not(:disabled):hover {
+  color: var(--sig-text) !important;
+  border-color: var(--sig-text-muted) !important;
+  background: var(--sig-surface-3) !important;
+}
+
+.shepherd-has-cancel-icon .shepherd-content .shepherd-title { padding-right: 20px; }
 
 /* ── Dark Theme ──────────────────────────────────────────────────────────── */
 .dark-theme {

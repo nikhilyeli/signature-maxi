@@ -100,6 +100,9 @@
   &:focus { border-bottom-color: var(--sig-yellow); }
 }
 
+.col-identity { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.draft-email { font-size: 0.75rem; color: var(--sig-text-muted); }
+
 .draft-select {
   width: 100%; background: var(--sig-surface-3); border: 1px solid var(--sig-border-solid);
   color: var(--sig-text); font-size: 0.8rem; padding: 4px; border-radius: var(--sig-radius); outline: none;

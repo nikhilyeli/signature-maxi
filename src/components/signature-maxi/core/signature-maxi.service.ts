@@ -214,7 +214,7 @@ export class SignatureMaxiService {
       ...(params.watermarkConfig ?? {}),
     };
 
-    if (watermarkConfig.enabled === false) return svgXml;
+    if (!watermarkConfig.enabled) return svgXml;
 
     const width = this.extractSvgDimension(svgXml, 'width', 450);
     const height = this.extractSvgDimension(svgXml, 'height', 200);

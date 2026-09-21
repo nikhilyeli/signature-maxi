@@ -65,6 +65,22 @@ h1 {
 /* Header actions */
 .header-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
+.view-toggle {
+  display: inline-flex; overflow: hidden;
+  background: var(--sig-surface); border: 1px solid var(--sig-border-solid); border-radius: var(--sig-radius);
+  button {
+    display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 12px;
+    border: none; background: transparent; cursor: pointer;
+    font: inherit; font-size: 0.78rem; font-weight: 500; color: var(--sig-text-muted);
+    transition: background 0.2s, color 0.2s;
+    mat-icon { font-size: 17px; height: 17px; width: 17px; }
+    & + button { border-left: 1px solid var(--sig-border-solid); }
+    &:hover { color: var(--sig-text); }
+    &.active { background: var(--sig-yellow-dim); color: var(--sig-yellow-dark); }
+    &:focus-visible { outline: 2px solid var(--sig-yellow); outline-offset: -2px; }
+  }
+}
+
 .header-actions button[mat-icon-button] {
   color: var(--sig-text-muted);
   &:hover { color: var(--sig-yellow); }

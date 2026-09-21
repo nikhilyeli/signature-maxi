@@ -8,13 +8,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { SignatureMaxiService, SignatureWatermarkConfig } from '../../core/signature-maxi.service';
-import { Signer } from '../../core/signer.interface';
+import { Signer, SignerViewMode } from '../../core/signer.interface';
 import { SignatureCaptureConfig } from '../../features/signature-capture/signature-capture';
 import { DEFAULT_SIGNERS } from '../signature-maxi/signature-maxi';
 
 interface SignerDraft {
   id: string;
   name: string;
+  email: string;
   role: string;
   mandatory: boolean;
   canEdit: boolean;
@@ -43,6 +44,8 @@ const ROLE_OPTIONS = [
 export class SettingsPanelComponent implements OnInit {
   @Input() contentId!: string;
   @Input() isDarkTheme = false;
+  @Input() viewMode: SignerViewMode = 'cards';
+  @Output() viewModeChanged = new EventEmitter<SignerViewMode>();
   @Output() closePanel = new EventEmitter<void>();
   @Output() themeToggled = new EventEmitter<boolean>();
 
@@ -92,6 +95,7 @@ export class SettingsPanelComponent implements OnInit {
     this.signerDrafts = this.signers.map((s) => ({
       id: s.id,
       name: s.name,
+      email: s.email ?? '',
       role: s.role,
       mandatory: s.mandatory,
       canEdit: s.canEdit ?? true,
@@ -115,6 +119,7 @@ export class SettingsPanelComponent implements OnInit {
       {
         id: `signer_${Date.now()}`,
         name: '',
+        email: '',
         role: 'Reviewer',
         mandatory: false,
         canEdit: true,
@@ -133,6 +138,7 @@ export class SettingsPanelComponent implements OnInit {
       this.signerDrafts = DEFAULT_SIGNERS.map((s) => ({
         id: s.id,
         name: s.name,
+        email: s.email ?? '',
         role: s.role,
         mandatory: s.mandatory,
         canEdit: s.canEdit ?? true,
@@ -153,6 +159,7 @@ export class SettingsPanelComponent implements OnInit {
       return {
         id: d.id,
         name: d.name.trim(),
+        email: d.email.trim() || undefined,
         role: d.role || 'Reviewer',
         mandatory: d.mandatory,
         signed: existing?.signed ?? false,

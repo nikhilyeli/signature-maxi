@@ -1,42 +1,26 @@
 <div class="dashboard">
   <!-- ══ TOP HEADER ══════════════════════════════════════════════════════════ -->
   <header class="dashboard-header">
-    <div class="header-brand">
+    <div class="header-brand" data-tour="brand">
       <img src="favicon.svg" alt="Signature Maxi Logo" class="brand-icon" />
-      <div>
+      <div data-tour="content-id">
         <h1>Signature Maxi Dashboard</h1>
 
         <!-- Content ID display / inline editor -->
         <div class="content-id-row" *ngIf="!editingContentId">
           <span class="content-id-label">Content ID:</span>
           <code class="content-id-val">{{ contentId }}</code>
-          <button
-            mat-icon-button
-            class="icon-xs"
-            matTooltip="Edit Content ID"
-            (click)="startEditContentId()"
-          >
+          <button mat-icon-button class="icon-xs" matTooltip="Edit Content ID" (click)="startEditContentId()">
             <mat-icon>edit</mat-icon>
           </button>
         </div>
         <div class="content-id-edit" *ngIf="editingContentId">
-          <input
-            class="id-input"
-            [(ngModel)]="contentIdDraft"
-            placeholder="Enter content ID"
-            (keyup.enter)="applyContentId()"
-            (keyup.escape)="cancelEditContentId()"
-            autofocus
-          />
+          <input class="id-input" [(ngModel)]="contentIdDraft" placeholder="Enter content ID"
+            (keyup.enter)="applyContentId()" (keyup.escape)="cancelEditContentId()" autofocus />
           <button mat-icon-button class="icon-xs ok" matTooltip="Apply" (click)="applyContentId()">
             <mat-icon>check</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            class="icon-xs"
-            matTooltip="Cancel"
-            (click)="cancelEditContentId()"
-          >
+          <button mat-icon-button class="icon-xs" matTooltip="Cancel" (click)="cancelEditContentId()">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -44,11 +28,9 @@
     </div>
 
     <!-- Pills -->
-    <div class="header-pills">
+    <div class="header-pills" data-tour="status-pills">
       <span class="pill pill-blue">{{ signers.length }} signers</span>
-      <span class="pill pill-green" *ngIf="signedCount > 0"
-        >{{ signedCount }}/{{ signers.length }} signed</span
-      >
+      <span class="pill pill-green" *ngIf="signedCount > 0">{{ signedCount }}/{{ signers.length }} signed</span>
       <span class="pill pill-yellow" *ngIf="mandatoryComplete">
         <mat-icon>task_alt</mat-icon> Complete
       </span>
@@ -56,13 +38,37 @@
 
     <!-- Actions -->
     <div class="header-actions">
+      <!-- Signer view toggle -->
+      <div class="view-toggle" role="group" aria-label="Signer view" data-tour="view-toggle">
+        <button type="button" [class.active]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'"
+          matTooltip="Card view" (click)="setViewMode('cards')">
+          <mat-icon>grid_view</mat-icon>
+        </button>
+        <button type="button" [class.active]="viewMode === 'list'" [attr.aria-pressed]="viewMode === 'list'"
+          matTooltip="List view, grouped by role" (click)="setViewMode('list')">
+          <mat-icon>view_list</mat-icon>
+        </button>
+      </div>
+
+      <!-- Product guide -->
+      <button mat-icon-button matTooltip="Product guide" [matMenuTriggerFor]="guideMenu">
+        <mat-icon>help_outline</mat-icon>
+      </button>
+      <mat-menu #guideMenu="matMenu">
+        <button mat-menu-item (click)="startFeatureTour()">
+          <mat-icon>explore</mat-icon> Explore Features
+        </button>
+        <button mat-menu-item (click)="startCustomizationTour()">
+          <mat-icon>tune</mat-icon> Customization Guide
+        </button>
+        <button mat-menu-item (click)="openProductReel()">
+          <mat-icon>smart_display</mat-icon> Watch Product Tour
+        </button>
+      </mat-menu>
+
       <!-- Settings toggle -->
-      <button
-        mat-icon-button
-        [matTooltip]="showSettings ? 'Hide settings' : 'Settings'"
-        [class.btn-active]="showSettings"
-        (click)="showSettings = !showSettings"
-      >
+      <button mat-icon-button data-tour="settings-toggle" [matTooltip]="showSettings ? 'Hide settings' : 'Settings'"
+        [class.btn-active]="showSettings" (click)="showSettings = !showSettings">
         <mat-icon>settings</mat-icon>
       </button>
 
@@ -70,49 +76,37 @@
         <mat-icon>restart_alt</mat-icon> Reset All
       </button>
 
-      <button
-        mat-flat-button
-        class="btn-primary"
-        matTooltip="Open signature panel"
-        (click)="openSignatureDialog()"
-      >
+      <button mat-flat-button class="btn-primary" data-tour="sign-all" matTooltip="Open signature panel"
+        (click)="openSignatureDialog()">
         <mat-icon svgIcon="stylus_note"></mat-icon> Sign All
       </button>
     </div>
   </header>
 
   <!-- ══ SETTINGS PANEL ══════════════════════════════════════════════════════ -->
-  <app-settings-panel
-    *ngIf="showSettings"
-    [contentId]="contentId"
-    [isDarkTheme]="isDarkTheme"
-    (themeToggled)="setTheme($event)"
-    (closePanel)="showSettings = false"
-  ></app-settings-panel>
+  <app-settings-panel *ngIf="showSettings" [contentId]="contentId" [isDarkTheme]="isDarkTheme" [viewMode]="viewMode"
+    (viewModeChanged)="setViewMode($event)" (themeToggled)="setTheme($event)"
+    (closePanel)="showSettings = false"></app-settings-panel>
 
   <!-- ══ PROGRESS ══════════════════════════════════════════════════════════ -->
-  <div class="progress-wrap" *ngIf="signers.length > 0">
+  <div class="progress-wrap" data-tour="progress" *ngIf="signers.length > 0">
     <div class="progress-track">
-      <div
-        class="progress-fill"
-        [style.width.%]="(signedCount / signers.length) * 100"
-        [class.fill-complete]="mandatoryComplete"
-      ></div>
+      <div class="progress-fill" [style.width.%]="(signedCount / signers.length) * 100"
+        [class.fill-complete]="mandatoryComplete"></div>
     </div>
-    <span class="progress-label"
-      >{{ signedCount }}/{{ signers.length }} signed · {{ mandatoryCount }} mandatory</span
-    >
+    <span class="progress-label">{{ signedCount }}/{{ signers.length }} signed · {{ mandatoryCount }} mandatory</span>
   </div>
 
   <!-- ══ SIGNER GRID ════════════════════════════════════════════════════════ -->
-  <div class="signers-grid" *ngIf="signers.length >= 0">
-    <app-signer-card
-      *ngFor="let signer of signers; trackBy: trackById"
-      [signer]="signer"
-      (view)="viewSignature($event)"
-      (sign)="openSignerDialog($event)"
-      (delete)="deleteSignature($event)"
-    ></app-signer-card>
+  <div class="signers-grid" data-tour="signers-grid" *ngIf="viewMode === 'cards'">
+    <app-signer-card *ngFor="let signer of signers; trackBy: trackById" [signer]="signer" (view)="viewSignature($event)"
+      (sign)="openSignerDialog($event)" (delete)="deleteSignature($event)"></app-signer-card>
+  </div>
+
+  <!-- ══ ROLE-GROUPED LIST ══════════════════════════════════════════════════ -->
+  <div data-tour="signers-grid" *ngIf="viewMode === 'list' && signers.length > 0">
+    <app-role-group-list [signers]="signers" (view)="viewSignature($event)" (sign)="openSignerDialog($event)"
+      (delete)="deleteSignature($event)"></app-role-group-list>
   </div>
 
   <!-- ══ EMPTY STATE ════════════════════════════════════════════════════════ -->
@@ -129,7 +123,9 @@
   <div class="submit-banner" *ngIf="mandatoryComplete">
     <mat-icon>task_alt</mat-icon>
     <span>All mandatory signatures complete — ready to submit.</span>
-    <button mat-stroked-button style="margin-left: auto; border-color: var(--sig-border-solid)" (click)="resetAll()"><mat-icon>restart_alt</mat-icon> Reset All</button>
-    <button mat-flat-button class="btn-submit" (click)="submitDocument()"><mat-icon>send</mat-icon> Submit Document</button>
+    <button mat-stroked-button style="margin-left: auto; border-color: var(--sig-border-solid)"
+      (click)="resetAll()"><mat-icon>restart_alt</mat-icon> Reset All</button>
+    <button mat-flat-button class="btn-submit" (click)="submitDocument()"><mat-icon>send</mat-icon> Submit
+      Document</button>
   </div>
 </div>
