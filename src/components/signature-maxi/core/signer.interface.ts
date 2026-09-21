@@ -1,7 +1,10 @@
+export type SignerViewMode = 'cards' | 'list';
+
 export interface Signer {
   id: string;
   name: string;
   role: string;
+  email?: string;
   mandatory: boolean;
   signed: boolean;
   signedAt?: string | null;

@@ -3,12 +3,7 @@
   <div class="panel-header">
     <h2>Settings</h2>
     <div style="display: flex; gap: 8px">
-      <button
-        mat-icon-button
-        color="warn"
-        matTooltip="Restore Defaults"
-        (click)="restoreDefaults()"
-      >
+      <button mat-icon-button color="warn" matTooltip="Restore Defaults" (click)="restoreDefaults()">
         <mat-icon>settings_backup_restore</mat-icon>
       </button>
       <button mat-icon-button (click)="closePanel.emit()">
@@ -30,14 +25,30 @@
 
   <mat-divider></mat-divider>
 
+  <!-- ── SECTION: Signer View ───────────────────────────────────────────── -->
+  <div class="settings-section" data-tour="view-mode">
+    <h3 class="section-title"><mat-icon>view_agenda</mat-icon> Signer View</h3>
+    <p class="settings-hint">How signers are laid out on the dashboard</p>
+    <div class="toggles-row">
+      <button class="mode-toggle-btn" [class.enabled]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'"
+        (click)="viewModeChanged.emit('cards')">
+        <mat-icon>grid_view</mat-icon> Card
+      </button>
+      <button class="mode-toggle-btn" [class.enabled]="viewMode === 'list'" [attr.aria-pressed]="viewMode === 'list'"
+        (click)="viewModeChanged.emit('list')">
+        <mat-icon>view_list</mat-icon> List
+      </button>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
   <!-- ── SECTION: Content & Signers ───────────────────────────────────── -->
   <div class="settings-section">
     <h3 class="section-title"><mat-icon>badge</mat-icon> Content &amp; Signers</h3>
 
     <div class="signer-list-header" data-tour="manage-signers">
-      <span class="settings-hint"
-        >{{ signers.length }} signer{{ signers.length !== 1 ? 's' : '' }} registered</span
-      >
+      <span class="settings-hint">{{ signers.length }} signer{{ signers.length !== 1 ? 's' : '' }} registered</span>
       <button mat-stroked-button class="btn-sm" (click)="openSignerList()" *ngIf="!showSignerList">
         <mat-icon>group</mat-icon> Manage Signers
       </button>
@@ -47,9 +58,9 @@
     </div>
 
     <!-- ── Signer editor ─────────────────────────────────────────────── -->
-    <div class="signer-editor" *ngIf="showSignerList">
+    <div class="signer-editor" *ngIf="showSignerList" data-tour="signer-editor">
       <div class="signer-row header-row">
-        <span class="col-name">Name *</span>
+        <span class="col-name">Name * / Email</span>
         <span class="col-role">Role</span>
         <span class="col-mand" title="Mandatory">Req.</span>
         <span class="col-edit" title="Can Edit">Ed.</span>
@@ -58,19 +69,17 @@
       </div>
 
       <div class="signer-row" *ngFor="let d of signerDrafts; trackBy: trackByDraftId">
-        <input class="draft-input" [(ngModel)]="d.name" placeholder="Full name" />
+        <div class="col-identity">
+          <input class="draft-input" [(ngModel)]="d.name" placeholder="Full name" />
+          <input class="draft-input draft-email" type="email" [(ngModel)]="d.email" placeholder="Email (optional)" />
+        </div>
         <select class="draft-select" [(ngModel)]="d.role">
           <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
         </select>
         <input type="checkbox" [(ngModel)]="d.mandatory" class="draft-check" title="Mandatory" />
         <input type="checkbox" [(ngModel)]="d.canEdit" class="draft-check" title="Can Edit" />
         <input type="checkbox" [(ngModel)]="d.canDelete" class="draft-check" title="Can Delete" />
-        <button
-          mat-icon-button
-          class="icon-xs del-btn"
-          matTooltip="Remove signer"
-          (click)="removeSignerRow(d)"
-        >
+        <button mat-icon-button class="icon-xs del-btn" matTooltip="Remove signer" (click)="removeSignerRow(d)">
           <mat-icon>delete_outline</mat-icon>
         </button>
       </div>
@@ -79,17 +88,13 @@
         <span>No signers. Add one below.</span>
       </div>
 
-      <div class="signer-editor-actions">
+      <div class="signer-editor-actions" data-tour="signer-editor-actions">
         <button mat-stroked-button class="btn-sm" (click)="addSignerRow()">
           <mat-icon>person_add</mat-icon> Add Signer
         </button>
         <div class="spacer"></div>
-        <button
-          mat-stroked-button
-          class="btn-sm"
-          matTooltip="Reset to default signers"
-          (click)="restoreDefaultSigners()"
-        >
+        <button mat-stroked-button class="btn-sm" matTooltip="Reset to default signers"
+          (click)="restoreDefaultSigners()">
           <mat-icon>settings_backup_restore</mat-icon> Default List
         </button>
         <button mat-stroked-button class="btn-sm" (click)="resetSignerList()">
@@ -109,25 +114,16 @@
     <h3 class="section-title"><mat-icon>tune</mat-icon> Signature Modes</h3>
     <p class="settings-hint">Enable/disable capture methods in the signature dialog</p>
     <div class="toggles-row" data-tour="signature-modes">
-      <button
-        class="mode-toggle-btn"
-        [class.enabled]="captureConfig.enableDraw"
-        (click)="captureConfig.enableDraw = !captureConfig.enableDraw; updateCaptureConfig()"
-      >
+      <button class="mode-toggle-btn" [class.enabled]="captureConfig.enableDraw"
+        (click)="captureConfig.enableDraw = !captureConfig.enableDraw; updateCaptureConfig()">
         <span class="status-dot"></span> <mat-icon>draw</mat-icon> Sign / Draw
       </button>
-      <button
-        class="mode-toggle-btn"
-        [class.enabled]="captureConfig.enableType"
-        (click)="captureConfig.enableType = !captureConfig.enableType; updateCaptureConfig()"
-      >
+      <button class="mode-toggle-btn" [class.enabled]="captureConfig.enableType"
+        (click)="captureConfig.enableType = !captureConfig.enableType; updateCaptureConfig()">
         <span class="status-dot"></span> <mat-icon>keyboard</mat-icon> Write / Type
       </button>
-      <button
-        class="mode-toggle-btn"
-        [class.enabled]="captureConfig.enableUpload"
-        (click)="captureConfig.enableUpload = !captureConfig.enableUpload; updateCaptureConfig()"
-      >
+      <button class="mode-toggle-btn" [class.enabled]="captureConfig.enableUpload"
+        (click)="captureConfig.enableUpload = !captureConfig.enableUpload; updateCaptureConfig()">
         <span class="status-dot"></span> <mat-icon>photo_camera</mat-icon> Capture / Upload
       </button>
     </div>
@@ -137,11 +133,8 @@
     </h3>
     <p class="settings-hint">Select the underlying canvas technology</p>
     <div class="toggles-row" data-tour="drawing-pad-mode">
-      <button
-        class="mode-toggle-btn"
-        [class.enabled]="!captureConfig.useLegacyDraw"
-        (click)="captureConfig.useLegacyDraw = !captureConfig.useLegacyDraw; updateCaptureConfig()"
-      >
+      <button class="mode-toggle-btn" [class.enabled]="!captureConfig.useLegacyDraw"
+        (click)="captureConfig.useLegacyDraw = !captureConfig.useLegacyDraw; updateCaptureConfig()">
         <span class="status-dot"></span> {{ captureConfig.useLegacyDraw ? 'Legacy' : 'New' }}
       </button>
     </div>
@@ -151,11 +144,8 @@
     </h3>
     <p class="settings-hint">Strict 9:4 aspect ratio</p>
     <div class="toggles-row" data-tour="canvas-size">
-      <select
-        class="draft-select"
-        [ngModel]="captureConfig.canvasSize"
-        (ngModelChange)="captureConfig.canvasSize = $event; updateCaptureConfig()"
-      >
+      <select class="draft-select" [ngModel]="captureConfig.canvasSize"
+        (ngModelChange)="captureConfig.canvasSize = $event; updateCaptureConfig()">
         /* style="width: auto; padding: 6px; border-radius: 4px; border: 1px solid #d0d4e8" */
         <option value="small">Small (450 x 200)</option>
         <option value="medium">Medium (900 x 400)</option>
@@ -170,11 +160,8 @@
   <div class="settings-section" data-tour="watermark">
     <div class="section-title-row">
       <h3 class="section-title"><mat-icon>water_drop</mat-icon> Watermark</h3>
-      <button
-        class="mode-toggle-btn"
-        [class.enabled]="watermarkConfig.enabled"
-        (click)="updateWatermark({ enabled: !watermarkConfig.enabled })"
-      >
+      <button class="mode-toggle-btn" [class.enabled]="watermarkConfig.enabled"
+        (click)="updateWatermark({ enabled: !watermarkConfig.enabled })">
         <span class="status-dot"></span> {{ watermarkConfig.enabled ? 'Enabled' : 'Disabled' }}
       </button>
     </div>
@@ -184,12 +171,8 @@
       <div class="wm-field-wrap">
         <label class="wm-label">Text Color</label>
         <div class="color-row">
-          <input
-            type="color"
-            class="color-swatch"
-            [ngModel]="watermarkConfig.textColor"
-            (ngModelChange)="updateWatermark({ textColor: $event })"
-          />
+          <input type="color" class="color-swatch" [ngModel]="watermarkConfig.textColor"
+            (ngModelChange)="updateWatermark({ textColor: $event })" />
           <code class="color-code">{{ watermarkConfig.textColor }}</code>
         </div>
       </div>
@@ -197,15 +180,8 @@
       <div class="wm-field-wrap">
         <label class="wm-label">Opacity</label>
         <div class="slider-row">
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            class="wm-range"
-            [ngModel]="watermarkConfig.opacity"
-            (ngModelChange)="updateWatermark({ opacity: +$event })"
-          />
+          <input type="range" min="0" max="1" step="0.05" class="wm-range" [ngModel]="watermarkConfig.opacity"
+            (ngModelChange)="updateWatermark({ opacity: +$event })" />
           <span class="wm-val">{{ watermarkConfig.opacity }}</span>
         </div>
       </div>
@@ -213,15 +189,8 @@
       <div class="wm-field-wrap">
         <label class="wm-label">Angle (°)</label>
         <div class="slider-row">
-          <input
-            type="range"
-            min="-90"
-            max="90"
-            step="5"
-            class="wm-range"
-            [ngModel]="watermarkConfig.angleDeg"
-            (ngModelChange)="updateWatermark({ angleDeg: +$event })"
-          />
+          <input type="range" min="-90" max="90" step="5" class="wm-range" [ngModel]="watermarkConfig.angleDeg"
+            (ngModelChange)="updateWatermark({ angleDeg: +$event })" />
           <span class="wm-val">{{ watermarkConfig.angleDeg }}°</span>
         </div>
       </div>
@@ -229,35 +198,22 @@
       <div class="wm-field-wrap">
         <label class="wm-label">Font Size</label>
         <div class="slider-row">
-          <input
-            type="range"
-            min="8"
-            max="36"
-            step="1"
-            class="wm-range"
-            [ngModel]="watermarkConfig.fontSize"
-            (ngModelChange)="updateWatermark({ fontSize: +$event })"
-          />
+          <input type="range" min="8" max="36" step="1" class="wm-range" [ngModel]="watermarkConfig.fontSize"
+            (ngModelChange)="updateWatermark({ fontSize: +$event })" />
           <span class="wm-val">{{ watermarkConfig.fontSize }}px</span>
         </div>
       </div>
 
       <div class="wm-field-wrap">
         <label class="wm-label">Content Label</label>
-        <input
-          class="wm-text-input"
-          [ngModel]="watermarkConfig.contentLabel"
-          (ngModelChange)="updateWatermark({ contentLabel: $event })"
-        />
+        <input class="wm-text-input" [ngModel]="watermarkConfig.contentLabel"
+          (ngModelChange)="updateWatermark({ contentLabel: $event })" />
       </div>
 
       <div class="wm-field-wrap">
         <label class="wm-label">Timestamp Label</label>
-        <input
-          class="wm-text-input"
-          [ngModel]="watermarkConfig.timestampLabel"
-          (ngModelChange)="updateWatermark({ timestampLabel: $event })"
-        />
+        <input class="wm-text-input" [ngModel]="watermarkConfig.timestampLabel"
+          (ngModelChange)="updateWatermark({ timestampLabel: $event })" />
       </div>
     </div>
   </div>

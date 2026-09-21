@@ -12,21 +12,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ProductGuideService } from '../../core/product-guide.service';
 import { SignatureMaxiService } from '../../core/signature-maxi.service';
-import { Signer } from '../../core/signer.interface';
+import { Signer, SignerViewMode } from '../../core/signer.interface';
 import { SignatureDialogComponent } from '../../features/signature-dialog/signature-dialog';
 import { SignatureViewerComponent } from '../../features/signature-preview/signature-viewer';
+import { ConfirmDialogComponent } from '../../features/confirm-dialog/confirm-dialog';
 import { ProductReelComponent } from '../../features/product-reel/product-reel';
+import { RoleGroupListComponent } from '../role-group-list/role-group-list';
 import { SettingsPanelComponent } from '../settings-panel/settings-panel';
 import { SignerCardComponent } from '../signer-card/signer-card';
 
 export const DEFAULT_SIGNERS: Signer[] = [
-  { id: '1', name: 'Harry Potter', role: 'Owner', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
-  { id: '2', name: 'Micheal Jackson', role: 'Author', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
-  { id: '3', name: 'John Belkin', role: 'Author', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
-  { id: '4', name: 'Sarah Zenkins', role: 'Co-Author', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
-  { id: '5', name: 'Liam Carter', role: 'Approver', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
-  { id: '6', name: 'Chloe Brooks', role: 'Observer', mandatory: false, signed: false, signature: null, canEdit: true, canDelete: true },
-  { id: '7', name: 'George Butter', role: 'Reviewer', mandatory: false, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '1', name: 'Harry Potter', email: 'harry.potter@example.com', role: 'Owner', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '2', name: 'Micheal Jackson', email: 'micheal.jackson@example.com', role: 'Author', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '3', name: 'John Belkin', email: 'john.belkin@example.com', role: 'Author', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '4', name: 'Sarah Zenkins', email: 'sarah.zenkins@example.com', role: 'Co-Author', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '5', name: 'Liam Carter', email: 'liam.carter@example.com', role: 'Approver', mandatory: true, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '6', name: 'Chloe Brooks', email: 'chloe.brooks@example.com', role: 'Observer', mandatory: false, signed: false, signature: null, canEdit: true, canDelete: true },
+  { id: '7', name: 'George Butter', email: 'george.butter@example.com', role: 'Reviewer', mandatory: false, signed: false, signature: null, canEdit: true, canDelete: true },
 ];
 
 @Component({
@@ -42,6 +44,7 @@ export const DEFAULT_SIGNERS: Signer[] = [
     MatDialogModule,
     MatSnackBarModule,
     SignerCardComponent,
+    RoleGroupListComponent,
     SettingsPanelComponent,
   ],
   templateUrl: './signature-maxi.html',
@@ -55,6 +58,7 @@ export class SignatureMaxiComponent implements OnInit {
   signers: Signer[] = [];
   showSettings = false;
   isDarkTheme = false;
+  viewMode: SignerViewMode = 'cards';
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -76,6 +80,13 @@ export class SignatureMaxiComponent implements OnInit {
     const savedTheme = localStorage.getItem('sig-maxi-theme');
     if (savedTheme === 'dark') {
       this.setTheme(true);
+    }
+
+    const savedView = localStorage.getItem('sig-maxi-view-mode');
+    if (savedView === 'list' || savedView === 'roles') {
+      this.viewMode = 'list';
+    } else if (savedView === 'cards') {
+      this.viewMode = 'cards';
     }
 
     this._subscribeSigners();
@@ -140,6 +151,11 @@ export class SignatureMaxiComponent implements OnInit {
     }
   }
 
+  setViewMode(mode: SignerViewMode): void {
+    this.viewMode = mode;
+    localStorage.setItem('sig-maxi-view-mode', mode);
+  }
+
   completeAll(): void {
     if (!this.mandatoryComplete) return;
     this.showToast('Content signatures finalized');
@@ -158,7 +174,14 @@ export class SignatureMaxiComponent implements OnInit {
   /* ── Product guide ───────────────────────────────────────────────────────── */
   startFeatureTour(): void {
     this.showSettings = false;
-    this.productGuide.startFeatureTour();
+    this.productGuide.startFeatureTour({
+      openSignDialog: () => this.openSignatureDialog(),
+      closeDialogs: () => {
+        if (this.dialog.openDialogs.length === 0) return Promise.resolve();
+        this.dialog.closeAll();
+        return new Promise<void>((resolve) => setTimeout(resolve, 300));
+      },
+    });
   }
 
   startCustomizationTour(): void {
@@ -246,8 +269,21 @@ export class SignatureMaxiComponent implements OnInit {
   }
 
   deleteSignature(s: Signer): void {
-    this.service.resetSignerSignature(this.contentId, s.id);
-    this.showToast(`Signature deleted for ${s.name}`);
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Delete signature?',
+        message: `${s.name}'s signature will be removed and they will need to sign again.`,
+        confirmLabel: 'Delete',
+      },
+      panelClass: 'signature-viewer-panel',
+      width: '380px',
+      maxWidth: '96vw',
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.service.resetSignerSignature(this.contentId, s.id);
+      this.showToast(`Signature deleted for ${s.name}`);
+    });
   }
 
   trackById(_i: number, s: Signer): string {

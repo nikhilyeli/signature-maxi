@@ -28,7 +28,7 @@ export interface SignatureDialogData {
   ],
   template: `
     <!-- ── Header ── -->
-    <div class="dlg-header">
+    <div class="dlg-header" data-tour="sign-dialog-header">
       <mat-icon svgIcon="stylus_note" style="color: #fff;"></mat-icon>
       <div class="dlg-header-text">
         <h5>{{ preselectedSignerId ? (selectedSigner?.name ?? 'Signer') : 'Signatures Panel' }}</h5>
@@ -48,7 +48,7 @@ export interface SignatureDialogData {
 
     <!-- ── Body ── -->
     <div class="dlg-body" [class.split-layout]="!preselectedSignerId" *ngIf="!isConfigEmpty">
-      <div class="dlg-sidebar" *ngIf="!preselectedSignerId">
+      <div class="dlg-sidebar" *ngIf="!preselectedSignerId" data-tour="sign-dialog-users">
         <!-- Signer list (only for the "all signers" mode) -->
         <app-signer-list
           [contentId]="contentId"
@@ -62,7 +62,7 @@ export interface SignatureDialogData {
         <span>Place your signature below</span>
       </div>
 
-      <div class="dlg-main">
+      <div class="dlg-main" data-tour="sign-dialog-capture">
         <!-- Completion banner -->
         <div class="dlg-complete-banner" *ngIf="canComplete && !preselectedSignerId">
           <mat-icon>task_alt</mat-icon> All mandatory signatures complete.
@@ -88,7 +88,7 @@ export interface SignatureDialogData {
     </div>
 
     <!-- ── Footer ── -->
-    <div class="dlg-footer">
+    <div class="dlg-footer" data-tour="sign-dialog-footer">
       <button mat-stroked-button mat-dialog-close>
         <mat-icon>cancel</mat-icon> Cancel
       </button>

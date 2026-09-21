@@ -13,7 +13,10 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
 /** Scene durations, ms — mirrors the standalone reel artifact's timeline exactly. */
-const DURATIONS = [4500, 4000, 6000, 6000, 5500, 5500, 5000, 4000];
+const DURATIONS = [4500, 4000, 6000, 7000, 7500, 7000, 7500, 5500, 5500, 5000, 4000];
+
+/** Index of the light/dark scene, whose theme card toggles on a timer while active. */
+const THEME_SCENE = 8;
 
 @Component({
   selector: 'app-product-reel',
@@ -131,7 +134,7 @@ export class ProductReelComponent implements AfterViewInit, OnDestroy {
   }
 
   private enterScene(i: number): void {
-    if (i === 5) {
+    if (i === THEME_SCENE) {
       this.themeInterval = setInterval(() => {
         this.themeCardRef?.nativeElement.classList.toggle('dark');
         this.themeToggleRef?.nativeElement.classList.toggle('dark');
@@ -140,7 +143,7 @@ export class ProductReelComponent implements AfterViewInit, OnDestroy {
   }
 
   private exitScene(i: number): void {
-    if (i === 5 && this.themeInterval !== null) {
+    if (i === THEME_SCENE && this.themeInterval !== null) {
       clearInterval(this.themeInterval);
       this.themeInterval = null;
       this.themeCardRef?.nativeElement.classList.remove('dark');

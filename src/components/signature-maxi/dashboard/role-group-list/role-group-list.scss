@@ -1,0 +1,126 @@
+:host { display: block; }
+
+.role-list {
+  display: grid;
+  grid-template-columns: 40% fit-content(60%);
+  justify-content: start;
+}
+
+.role-group {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--sig-border-solid);
+  &:first-child { padding-top: 4px; }
+  &:last-child { border-bottom: none; }
+}
+
+/* ── Role label (left) ─────────────────────────────────────────────────── */
+.role-label {
+  display: flex; align-items: flex-start; gap: 4px;
+  padding: 12px 24px 0 0; min-width: 0;
+}
+.role-name { font-size: 0.95rem; font-weight: 600; color: var(--sig-text); overflow-wrap: anywhere; }
+.req-star {
+  color: var(--sig-red); font-weight: 700; font-size: 1.05rem; line-height: 1.1; cursor: help;
+}
+.help-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; padding: 0; margin-left: 2px; flex-shrink: 0;
+  background: none; border: none; border-radius: 50%; cursor: help; color: var(--sig-text-muted);
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { color: var(--sig-yellow); }
+  &:focus-visible { outline: 2px solid var(--sig-yellow); outline-offset: 1px; }
+}
+
+/* ── Users (right): one card per row, stacked vertically ───────────────── */
+.role-users { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+.user-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
+
+.user-card {
+  position: relative; flex: 1; min-width: 260px;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--sig-surface);
+  border: 1px solid var(--sig-border);
+  border-radius: var(--sig-radius);
+  padding: 11px 44px 11px 13px;
+  transition: border-color 0.2s;
+  &.is-mandatory { border-left: 3px solid rgba(215, 159, 40, 0.5); }
+  &.is-signed { border-color: rgba(76, 175, 80, 0.3); }
+  &:hover { border-color: rgba(215, 159, 40, 0.35); }
+  &:focus-visible { outline: 2px solid var(--sig-yellow); outline-offset: 1px; }
+}
+
+.info-icon { flex-shrink: 0; font-size: 18px; width: 18px; height: 18px; color: var(--sig-text-muted); }
+
+.user-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.user-name {
+  font-size: 0.88rem; font-weight: 600; color: var(--sig-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-email {
+  font-size: 0.72rem; color: var(--sig-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  &.missing { font-style: italic; color: var(--sig-text-faint); }
+}
+.user-status {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;
+  font-size: 0.72rem; color: var(--sig-green); font-weight: 500;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; flex-shrink: 0; }
+  strong { font-weight: 700; font-style: italic; }
+}
+
+/* ── Actions outside the card: revealed on hover / keyboard focus ──────── */
+.user-actions {
+  display: flex; align-items: center; flex-shrink: 0;
+  opacity: 0; transition: opacity 0.15s;
+}
+.user-row:hover .user-actions,
+.user-row:focus-within .user-actions,
+.user-row.tour-reveal .user-actions { opacity: 1; }
+@media (hover: none) { .user-actions { opacity: 1; } }
+
+.act {
+  width: 32px; height: 32px; padding: 4px; color: var(--sig-text-muted);
+  mat-icon { font-size: 20px; width: 20px; height: 20px; line-height: 20px; }
+  &:hover:not(:disabled) { color: var(--sig-yellow); }
+  &:disabled { opacity: 0.25; }
+}
+.act-add { color: var(--sig-yellow); }
+.act-delete:hover:not(:disabled) { color: var(--sig-red); }
+
+/* ── Image icon in the card's bottom-right corner: hover shows signature + time ─ */
+.view-wrap {
+  position: absolute; right: 8px; bottom: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%; cursor: default; color: var(--sig-text-muted);
+  &:hover, &:focus-visible { color: var(--sig-yellow); }
+  &:focus-visible { outline: 2px solid var(--sig-yellow); outline-offset: 1px; }
+}
+.view-icon { font-size: 20px; width: 20px; height: 20px; }
+.rich-tip {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 20;
+  display: flex; flex-direction: column; gap: 6px; width: 230px; padding: 8px;
+  background: var(--sig-surface); border: 1px solid var(--sig-border-solid);
+  border-radius: var(--sig-radius); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  color: var(--sig-text); cursor: default;
+  opacity: 0; visibility: hidden; transform: translateY(-4px); pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+.view-wrap:hover .rich-tip,
+.view-wrap:focus-visible .rich-tip { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.tip-sheet {
+  display: block; aspect-ratio: 9 / 4; background: #ffffff;
+  border: 1px dashed var(--sig-border-solid); border-radius: var(--sig-radius); overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: contain; padding: 4px; display: block; }
+}
+.tip-meta { font-size: 0.7rem; color: var(--sig-text-muted); }
+
+@media (max-width: 720px) {
+  .role-list { grid-template-columns: 1fr; }
+  .role-group { grid-template-columns: 1fr; gap: 8px; }
+  .role-label { padding: 0; }
+}
